@@ -247,14 +247,22 @@ function copyAddr(){
   var done=function(){var e=document.getElementById('toast');e.classList.add('show');setTimeout(function(){e.classList.remove('show')},1800)};
   if(navigator.clipboard){navigator.clipboard.writeText(t).then(done,done)}else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();done()}
 }
-var links=[].slice.call(document.querySelectorAll('nav a'));
+var nav=document.getElementById('nav');
+var links=[].slice.call(nav.querySelectorAll('a'));
 var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'))});
-window.addEventListener('scroll',function(){
+var cur=-1,tick=false;
+function update(){
+  tick=false;
   var y=window.scrollY+90,i=0;
-  secs.forEach(function(s,k){if(s.offsetTop<=y)i=k});
+  secs.forEach(function(s,k){if(s&&s.offsetTop<=y)i=k});
+  if(i===cur)return;
+  cur=i;
   links.forEach(function(a,k){a.classList.toggle('on',k===i)});
-  links[i].scrollIntoView({block:'nearest',inline:'center'});
-},{passive:true});
+  var a=links[i];
+  nav.scrollLeft=a.offsetLeft-(nav.clientWidth-a.offsetWidth)/2; /* 메뉴바만 가로 이동 (페이지 세로 스크롤 영향 없음) */
+}
+window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(update)}},{passive:true});
+update();
 </script>
 </body>
 </html>
